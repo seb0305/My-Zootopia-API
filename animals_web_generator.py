@@ -1,22 +1,10 @@
-import requests
+import data_fetcher
 from pathlib import Path
 from typing import Any, Dict, List
 
 TEMPLATE_PATH = "animals_template.html"
 OUTPUT_PATH = "animals.html"
 PLACEHOLDER = "__REPLACE_ANIMALS_INFO__"
-API_KEY = "yMFgesWf8cTpujXTRlKTfg==P7czWNYAwh7rLA6J"
-API_URL = "https://api.api-ninjas.com/v1/animals"
-
-def load_data_from_api(animal_name: str) -> List[Dict[str, Any]]:
-    """Fetch animals data from the API for a user-provided name."""
-    headers = {"X-Api-Key": API_KEY}
-    params = {"name": animal_name}
-    response = requests.get(API_URL, headers=headers, params=params)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return []
 
 def serialize_animal(animal: Dict[str, Any]) -> str:
     name = animal.get("name")
@@ -59,9 +47,8 @@ def generate_html(animal_name: str,
                   template_path: str = TEMPLATE_PATH,
                   output_path: str = OUTPUT_PATH,
                   placeholder: str = PLACEHOLDER) -> str:
-    """Load data from API for the user’s choice, serialize, inject into template, write file."""
-    data = load_data_from_api(animal_name)
-    if not data:  # No animals found for the given name
+    data = data_fetcher.fetch_data(animal_name)
+    if not data:
         items_html = f'<h2 style="color:red; text-align:center;">The animal \"{animal_name}\" doesn\'t exist.</h2>'
     else:
         items_html = build_animals_html_items(data)
@@ -71,7 +58,7 @@ def generate_html(animal_name: str,
     return output_path
 
 def main() -> None:
-    animal_name = input("Enter a name of an animal: ")
+    animal_name = input("Please enter an animal: ")
     out = generate_html(animal_name)
     print(f"Website was successfully generated to the file {out}.")
 
