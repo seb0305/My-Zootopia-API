@@ -8,26 +8,24 @@ PLACEHOLDER = "__REPLACE_ANIMALS_INFO__"
 API_KEY = "yMFgesWf8cTpujXTRlKTfg==P7czWNYAwh7rLA6J"
 API_URL = "https://api.api-ninjas.com/v1/animals"
 
-def load_data_from_api(animal_name: str = "fox") -> List[Dict[str, Any]]:
-    """Fetch animals data from the API."""
+def load_data_from_api(animal_name: str) -> List[Dict[str, Any]]:
+    """Fetch animals data from the API for a user-provided name."""
     headers = {"X-Api-Key": API_KEY}
     params = {"name": animal_name}
     response = requests.get(API_URL, headers=headers, params=params)
     if response.status_code == 200:
         return response.json()
     else:
-        return []  # Return empty on error
+        return []
 
 def serialize_animal(animal: Dict[str, Any]) -> str:
     name = animal.get("name")
     locations = animal.get("locations") or []
     characteristics = animal.get("characteristics") or {}
     diet = characteristics.get("diet")
-    type_ = characteristics.get("type")  # Use .get("type") if available
-
+    type_ = characteristics.get("type")
     if not any([name, diet, locations, type_]):
         return ""
-
     lines: List[str] = []
     lines.append('<li class="cards__item">')
     if name:
@@ -57,13 +55,12 @@ def read_template(path: str) -> str:
 def write_output(path: str, content: str) -> None:
     Path(path).write_text(content, encoding="utf-8")
 
-def generate_html(
-    template_path: str = TEMPLATE_PATH,
-    output_path: str = OUTPUT_PATH,
-    placeholder: str = PLACEHOLDER,
-) -> str:
-    """Load data from API, serialize, inject into template, write file."""
-    data = load_data_from_api("lynx")
+def generate_html(animal_name: str,
+                  template_path: str = TEMPLATE_PATH,
+                  output_path: str = OUTPUT_PATH,
+                  placeholder: str = PLACEHOLDER) -> str:
+    """Load data from API for the user’s choice, serialize, inject into template, write file."""
+    data = load_data_from_api(animal_name)
     items_html = build_animals_html_items(data)
     template = read_template(template_path)
     html_out = template.replace(placeholder, items_html)
@@ -71,8 +68,9 @@ def generate_html(
     return output_path
 
 def main() -> None:
-    out = generate_html()
-    print(f"Wrote {out}")
+    animal_name = input("Enter a name of an animal: ")
+    out = generate_html(animal_name)
+    print(f"Website was successfully generated to the file {out}.")
 
 if __name__ == "__main__":
     main()
