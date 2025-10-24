@@ -63,7 +63,7 @@ def generate_html(
     placeholder: str = PLACEHOLDER,
 ) -> str:
     """Load data from API, serialize, inject into template, write file."""
-    data = load_data_from_api("fox")
+    data = load_data_from_api("lynx")
     items_html = build_animals_html_items(data)
     template = read_template(template_path)
     html_out = template.replace(placeholder, items_html)
