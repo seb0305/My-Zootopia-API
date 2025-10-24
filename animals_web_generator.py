@@ -61,7 +61,10 @@ def generate_html(animal_name: str,
                   placeholder: str = PLACEHOLDER) -> str:
     """Load data from API for the user’s choice, serialize, inject into template, write file."""
     data = load_data_from_api(animal_name)
-    items_html = build_animals_html_items(data)
+    if not data:  # No animals found for the given name
+        items_html = f'<h2 style="color:red; text-align:center;">The animal \"{animal_name}\" doesn\'t exist.</h2>'
+    else:
+        items_html = build_animals_html_items(data)
     template = read_template(template_path)
     html_out = template.replace(placeholder, items_html)
     write_output(output_path, html_out)
